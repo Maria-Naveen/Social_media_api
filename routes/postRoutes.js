@@ -29,7 +29,7 @@ router.get("/posts/:id", verifyUser, getPostDetails);
 router.patch("/posts/:postId/comments/:commentId", verifyUser, updateComment);
 router.patch(
   "/posts/:postId/comments/:commentId/toggle-like",
-  authenticate,
+  verifyUser,
   toggleCommentLike
 );
 router.delete("/posts/:postId/comments/:commentId", verifyUser, deleteComment);
