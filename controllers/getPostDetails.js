@@ -21,7 +21,7 @@ const getPostDetails = async (req, res) => {
       message: "Post details retrieved",
       post: {
         title: post.title,
-        content: post.content,
+        content: post.description,
         author: post.author,
         commentsCount,
         likesCount,
