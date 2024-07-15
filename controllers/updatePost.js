@@ -3,12 +3,12 @@ import Post from "../models/post.js";
 const updatePost = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description } = req.body;
+    const { description } = req.body;
     const userId = req.user.id;
 
     const post = await Post.findOneAndUpdate(
       { _id: id, author: userId },
-      { title, description },
+      { description },
       { new: true, runValidators: true }
     );
     if (!post) {

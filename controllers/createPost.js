@@ -11,7 +11,6 @@ const createPost = async (req, res) => {
 
   try {
     const post = new Post({
-      title: req.body.title,
       description: req.body.description,
       author: req.user.id,
     });
@@ -20,7 +19,6 @@ const createPost = async (req, res) => {
 
     res.status(201).json({
       id: post._id,
-      title: post.title,
       description: post.description,
       createdAt: post.createdAt,
     });
