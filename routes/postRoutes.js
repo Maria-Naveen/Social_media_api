@@ -15,10 +15,7 @@ router.post(
   "/posts",
   [
     verifyUser,
-    [
-      check("title", "Title is required").not().isEmpty(),
-      check("description", "Description is required").not().isEmpty(),
-    ],
+    [check("description", "Description is required").not().isEmpty()],
   ],
   createPost
 );
