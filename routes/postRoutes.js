@@ -26,7 +26,7 @@ router.post(
 router.patch("/posts/:id", verifyUser, updatePost);
 router.delete("/posts/:id", verifyUser, deletePost);
 router.post("/posts/:id/comments", verifyUser, addComment);
-router.patch("/posts/:id/toggle-like", verifyUser, toggleLike);
+router.patch("/posts/:postId/toggle-like", verifyUser, toggleLike);
 router.get("/posts/:id/details", verifyUser, getPostDetails);
 router.patch("/posts/:postId/comments/:commentId", verifyUser, updateComment);
 router.delete("/posts/:postId/comments/:commentId", verifyUser, deleteComment);
