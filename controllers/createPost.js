@@ -1,13 +1,13 @@
-import { validationResult } from "express-validator";
+// import { validationResult } from "express-validator";
 import Post from "../models/post.js";
 
 const createPost = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res
-      .status(422)
-      .json({ message: "Invalid Inputs", errors: errors.array() });
-  }
+  // const errors = validationResult(req);
+  // if (!errors.isEmpty()) {
+  //   return res
+  //     .status(422)
+  //     .json({ message: "Invalid Inputs", errors: errors.array() });
+  // }
 
   try {
     const post = new Post({

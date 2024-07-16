@@ -1,6 +1,5 @@
 import express from "express";
 import verifyUser from "../middleware/auth.js";
-import { check } from "express-validator";
 import createPost from "../controllers/createPost.js";
 import updatePost from "../controllers/updatePost.js";
 import deletePost from "../controllers/deletePost.js";
@@ -10,18 +9,13 @@ import getPostDetails from "../controllers/getPostDetails.js";
 import updateComment from "../controllers/updateComment.js";
 import toggleCommentLike from "../controllers/toggleCommentLike.js";
 import deleteComment from "../controllers/deleteComment.js";
+import validateCreatePost from "../middleware/validateCreatePost.js";
+import validateUpdatePost from "../middleware/validateUpdatePost.js";
 const router = express.Router();
 
-router.post(
-  "/posts",
-  [
-    verifyUser,
-    [check("description", "Description is required").not().isEmpty()],
-  ],
-  createPost
-);
+router.post("/posts", [verifyUser, validateCreatePost], createPost);
 
-router.patch("/posts/:id", verifyUser, updatePost);
+router.patch("/posts/:id", verifyUser, validateUpdatePost, updatePost);
 router.delete("/posts/:id", verifyUser, deletePost);
 router.post("/posts/:id/comments", verifyUser, addComment);
 router.patch("/posts/:postId/toggle-like", verifyUser, toggleLike);
