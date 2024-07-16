@@ -11,10 +11,8 @@ const createUserController = async (req, res) => {
       return res.status(400).json({ message: "User already exists." });
     }
     const newUser = new User({ name, email, password });
-    const savedUser = await newUser.save();
-    res
-      .status(201)
-      .json({ message: "User created successfully!", user: { savedUser } });
+    await newUser.save();
+    res.status(201).json({ message: "User created successfully!" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
