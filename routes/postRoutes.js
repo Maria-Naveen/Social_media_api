@@ -11,16 +11,23 @@ import toggleCommentLike from "../controllers/toggleCommentLike.js";
 import deleteComment from "../controllers/deleteComment.js";
 import validateCreatePost from "../middleware/validateCreatePost.js";
 import validateUpdatePost from "../middleware/validateUpdatePost.js";
+import validateComment from "../middleware/validateComment.js";
+import validateUpdateComment from "../middleware/validateUpdateComment.js";
 const router = express.Router();
 
 router.post("/posts", [verifyUser, validateCreatePost], createPost);
 
 router.patch("/posts/:id", verifyUser, validateUpdatePost, updatePost);
 router.delete("/posts/:id", verifyUser, deletePost);
-router.post("/posts/:id/comments", verifyUser, addComment);
+router.post("/posts/:id/comments", verifyUser, validateComment, addComment);
 router.patch("/posts/:postId/toggle-like", verifyUser, toggleLike);
 router.get("/posts/:id", verifyUser, getPostDetails);
-router.patch("/posts/:postId/comments/:commentId", verifyUser, updateComment);
+router.patch(
+  "/posts/comments/:postId/:commentId",
+  verifyUser,
+  validateUpdateComment,
+  updateComment
+);
 router.patch(
   "/posts/:postId/comments/:commentId/toggle-like",
   verifyUser,
