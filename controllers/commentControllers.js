@@ -73,8 +73,6 @@ const updateComment = async (req, res) => {
     const { text } = req.body;
     const userId = req.user.id;
 
-    console.log("Request Data:", { postId, commentId, userId, text });
-
     const result = await commentService.updateComment(
       postId,
       commentId,

@@ -1,9 +1,9 @@
 import express from "express";
 import verifyUser from "../middleware/auth.js";
-import { userControllers } from "../controllers/index.js";
+import userDetailsController from "../controllers/userDetailsController.js";
 
 const router = express.Router();
 
-router.get("/user", verifyUser, userControllers.userDetails);
+router.get("/user", verifyUser, userDetailsController);
 
 export default router;
