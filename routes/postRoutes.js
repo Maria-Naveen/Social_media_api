@@ -7,48 +7,38 @@ import {
   getPostDetails,
   toggleLike,
 } from "../controllers/postControllers.js";
-import { commentControllers } from "../controllers/index.js";
+import {
+  addComment,
+  deleteComment,
+  toggleCommentLike,
+  updateComment,
+} from "../controllers/commentControllers.js";
 import validateCreatePost from "../middleware/validateCreatePost.js";
 import validateUpdatePost from "../middleware/validateUpdatePost.js";
 import validateComment from "../middleware/validateComment.js";
-import validateUpdateComment from "../middleware/validateUpdateComment.js";
 
 const router = express.Router();
 
+// Posts routes
 router.post("/posts", [verifyUser, validateCreatePost], createPost);
-
 router.patch("/posts/:id", verifyUser, validateUpdatePost, updatePost);
-
 router.delete("/posts/:id", verifyUser, deletePost);
-
-router.post(
-  "/posts/:id/comments",
-  verifyUser,
-  validateComment,
-  commentControllers.addComment
-);
-
-router.patch("/posts/:postId/toggle-like", verifyUser, toggleLike);
-
 router.get("/posts/:id", verifyUser, getPostDetails);
+router.patch("/posts/:id/toggle-like", verifyUser, toggleLike);
 
+// Comments routes
+router.post("/posts/:id/comments", verifyUser, validateComment, addComment);
 router.patch(
   "/posts/comments/:postId/:commentId",
   verifyUser,
-  validateUpdateComment,
-  commentControllers.updateComment
+  validateComment,
+  updateComment
 );
-
 router.patch(
-  "/posts/:postId/comments/:commentId/toggle-like",
+  "/posts/comments/:postId/:commentId/toggle-like",
   verifyUser,
-  commentControllers.toggleCommentLike
+  toggleCommentLike
 );
-
-router.delete(
-  "/posts/:postId/comments/:commentId",
-  verifyUser,
-  commentControllers.deleteComment
-);
+router.delete("/posts/comments/:postId/:commentId", verifyUser, deleteComment);
 
 export default router;
