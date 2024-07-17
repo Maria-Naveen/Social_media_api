@@ -66,27 +66,32 @@ const toggleCommentLike = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-const updateComment = async (req, res) => {
-  const { postId, commentId } = req.params;
-  const { text } = req.body;
-  const userId = req.user.id; // Assuming you get userId from authentication middleware
 
+const updateComment = async (req, res) => {
   try {
-    const { success, statusCode, message, comment } = await updateComment(
+    const { postId, commentId } = req.params;
+    const { text } = req.body;
+    const userId = req.user.id;
+
+    console.log("Request Data:", { postId, commentId, userId, text });
+
+    const result = await commentService.updateComment(
       postId,
       commentId,
       userId,
       text
     );
 
-    if (!success) {
-      return res.status(statusCode).json({ message });
+    if (!result.success) {
+      return res.status(result.statusCode).json({ message: result.message });
     }
 
-    res.status(200).json({ comment });
+    res
+      .status(200)
+      .json({ message: "Comment updated", comment: result.comment });
   } catch (error) {
-    console.error("Error in updateComment:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Error in updateComment controller:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 

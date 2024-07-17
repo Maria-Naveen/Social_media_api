@@ -20,11 +20,11 @@ import validateComment from "../middleware/validateComment.js";
 const router = express.Router();
 
 // Posts routes
-router.post("/posts", [verifyUser, validateCreatePost], createPost);
+router.post("/posts", verifyUser, validateCreatePost, createPost);
 router.patch("/posts/:id", verifyUser, validateUpdatePost, updatePost);
 router.delete("/posts/:id", verifyUser, deletePost);
 router.get("/posts/:id", verifyUser, getPostDetails);
-router.patch("/posts/:id/toggle-like", verifyUser, toggleLike);
+router.patch("/posts/:postId/toggle-like", verifyUser, toggleLike);
 
 // Comments routes
 router.post("/posts/:id/comments", verifyUser, validateComment, addComment);
