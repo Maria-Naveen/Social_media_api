@@ -1,6 +1,13 @@
 import express from "express";
 import verifyUser from "../middleware/auth.js";
-import { postControllers, commentControllers } from "../controllers/index.js";
+import {
+  createPost,
+  updatePost,
+  deletePost,
+  getPostDetails,
+  toggleLike,
+} from "../controllers/postControllers.js";
+import { commentControllers } from "../controllers/index.js";
 import validateCreatePost from "../middleware/validateCreatePost.js";
 import validateUpdatePost from "../middleware/validateUpdatePost.js";
 import validateComment from "../middleware/validateComment.js";
@@ -8,20 +15,11 @@ import validateUpdateComment from "../middleware/validateUpdateComment.js";
 
 const router = express.Router();
 
-router.post(
-  "/posts",
-  [verifyUser, validateCreatePost],
-  postControllers.createPost
-);
+router.post("/posts", [verifyUser, validateCreatePost], createPost);
 
-router.patch(
-  "/posts/:id",
-  verifyUser,
-  validateUpdatePost,
-  postControllers.updatePost
-);
+router.patch("/posts/:id", verifyUser, validateUpdatePost, updatePost);
 
-router.delete("/posts/:id", verifyUser, postControllers.deletePost);
+router.delete("/posts/:id", verifyUser, deletePost);
 
 router.post(
   "/posts/:id/comments",
@@ -30,13 +28,9 @@ router.post(
   commentControllers.addComment
 );
 
-router.patch(
-  "/posts/:postId/toggle-like",
-  verifyUser,
-  postControllers.toggleLike
-);
+router.patch("/posts/:postId/toggle-like", verifyUser, toggleLike);
 
-router.get("/posts/:id", verifyUser, postControllers.getPostDetails);
+router.get("/posts/:id", verifyUser, getPostDetails);
 
 router.patch(
   "/posts/comments/:postId/:commentId",
