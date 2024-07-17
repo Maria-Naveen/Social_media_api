@@ -1,37 +1,60 @@
 import express from "express";
 import verifyUser from "../middleware/auth.js";
-import createPost from "../controllers/createPost.js";
-import updatePost from "../controllers/updatePost.js";
-import deletePost from "../controllers/deletePost.js";
-import addComment from "../controllers/addComment.js";
-import toggleLike from "../controllers/toggleLike.js";
-import getPostDetails from "../controllers/getPostDetails.js";
-import updateComment from "../controllers/updateComment.js";
-import toggleCommentLike from "../controllers/toggleCommentLike.js";
-import deleteComment from "../controllers/deleteComment.js";
+import { postControllers, commentControllers } from "../controllers/index.js";
 import validateCreatePost from "../middleware/validateCreatePost.js";
 import validateUpdatePost from "../middleware/validateUpdatePost.js";
 import validateComment from "../middleware/validateComment.js";
 import validateUpdateComment from "../middleware/validateUpdateComment.js";
+
 const router = express.Router();
 
-router.post("/posts", [verifyUser, validateCreatePost], createPost);
+router.post(
+  "/posts",
+  [verifyUser, validateCreatePost],
+  postControllers.createPost
+);
 
-router.patch("/posts/:id", verifyUser, validateUpdatePost, updatePost);
-router.delete("/posts/:id", verifyUser, deletePost);
-router.post("/posts/:id/comments", verifyUser, validateComment, addComment);
-router.patch("/posts/:postId/toggle-like", verifyUser, toggleLike);
-router.get("/posts/:id", verifyUser, getPostDetails);
+router.patch(
+  "/posts/:id",
+  verifyUser,
+  validateUpdatePost,
+  postControllers.updatePost
+);
+
+router.delete("/posts/:id", verifyUser, postControllers.deletePost);
+
+router.post(
+  "/posts/:id/comments",
+  verifyUser,
+  validateComment,
+  commentControllers.addComment
+);
+
+router.patch(
+  "/posts/:postId/toggle-like",
+  verifyUser,
+  postControllers.toggleLike
+);
+
+router.get("/posts/:id", verifyUser, postControllers.getPostDetails);
+
 router.patch(
   "/posts/comments/:postId/:commentId",
   verifyUser,
   validateUpdateComment,
-  updateComment
+  commentControllers.updateComment
 );
+
 router.patch(
   "/posts/:postId/comments/:commentId/toggle-like",
   verifyUser,
-  toggleCommentLike
+  commentControllers.toggleCommentLike
 );
-router.delete("/posts/:postId/comments/:commentId", verifyUser, deleteComment);
+
+router.delete(
+  "/posts/:postId/comments/:commentId",
+  verifyUser,
+  commentControllers.deleteComment
+);
+
 export default router;
