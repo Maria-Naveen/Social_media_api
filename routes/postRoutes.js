@@ -13,25 +13,44 @@ import {
   toggleCommentLike,
   updateComment,
 } from "../controllers/commentControllers.js";
-import validateCreatePost from "../middleware/validateCreatePost.js";
-import validateUpdatePost from "../middleware/validateUpdatePost.js";
-import validateComment from "../middleware/validateComment.js";
+import validateRequest from "../middleware/validateRequest.js";
+import {
+  createPostSchema,
+  updatePostSchema,
+  createCommentSchema,
+  updateCommentSchema,
+} from "../validation/postValidation.js";
 
 const router = express.Router();
 
 // Posts routes
-router.post("/posts", verifyUser, validateCreatePost, createPost);
-router.patch("/posts/:id", verifyUser, validateUpdatePost, updatePost);
+router.post(
+  "/posts",
+  verifyUser,
+  validateRequest(createPostSchema),
+  createPost
+);
+router.patch(
+  "/posts/:id",
+  verifyUser,
+  validateRequest(updatePostSchema),
+  updatePost
+);
 router.delete("/posts/:id", verifyUser, deletePost);
 router.get("/posts/:id", verifyUser, getPostDetails);
 router.patch("/posts/:postId/toggle-like", verifyUser, toggleLike);
 
 // Comments routes
-router.post("/posts/:id/comments", verifyUser, validateComment, addComment);
+router.post(
+  "/posts/:id/comments",
+  verifyUser,
+  validateRequest(createCommentSchema),
+  addComment
+);
 router.patch(
   "/posts/comments/:postId/:commentId",
   verifyUser,
-  validateComment,
+  validateRequest(updateCommentSchema),
   updateComment
 );
 router.patch(
