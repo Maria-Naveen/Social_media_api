@@ -1,4 +1,5 @@
 import Post from "../models/post.js";
+import Comment from "../models/comment.js";
 
 const createPost = async (postData, user) => {
   try {
@@ -54,6 +55,7 @@ const deletePost = async (params, user) => {
       error.status = "Fail";
       throw error;
     }
+    await Comment.deleteMany({ postId: params.id });
     await Post.deleteOne({ _id: params.id });
   } catch (error) {
     if (error.message === "Post not found") {

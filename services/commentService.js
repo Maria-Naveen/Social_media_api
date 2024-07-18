@@ -2,7 +2,7 @@ import Comment from "../models/comment.js";
 import Post from "../models/post.js";
 
 const addComment = async (postId, userId, text) => {
-  const comment = new Comment({ text, author: userId });
+  const comment = new Comment({ text, author: userId, postId: postId });
   const savedComment = await comment.save();
 
   const post = await Post.findByIdAndUpdate(
