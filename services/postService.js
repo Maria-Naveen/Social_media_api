@@ -9,7 +9,10 @@ const createPost = async (postData, user) => {
     await post.save();
     return post;
   } catch (error) {
-    throw new Error("Error creating post");
+    const err = new Error("Error creating post");
+    err.statusCode = 400;
+    err.status = "Fail";
+    throw err;
   }
 };
 
@@ -24,7 +27,10 @@ const updatePost = async (params, updateData, user) => {
       { new: true, runValidators: true }
     );
     if (!post) {
-      throw new Error("Post not found");
+      const error = new Error("Post not found");
+      error.statusCode = 404;
+      error.status = "Fail";
+      throw error;
     }
     return post;
   } catch (error) {
@@ -43,7 +49,10 @@ const deletePost = async (params, user) => {
       author: user.id,
     });
     if (!post) {
-      throw new Error("Post not found");
+      const error = new Error("Post not found");
+      error.statusCode = 404;
+      error.status = "Fail";
+      throw error;
     }
     await Post.deleteOne({ _id: params.id });
   } catch (error) {
@@ -59,7 +68,10 @@ const getPostDetails = async (postId) => {
   try {
     const post = await Post.findById(postId);
     if (!post) {
-      throw new Error("Post not found");
+      const error = new Error("Post not found");
+      error.statusCode = 404;
+      error.status = "Fail";
+      throw error;
     }
     return post;
   } catch (error) {
@@ -75,7 +87,10 @@ const toggleLike = async (postId, userId) => {
   try {
     const post = await Post.findById(postId);
     if (!post) {
-      throw new Error("Post not found");
+      const error = new Error("Post not found");
+      error.statusCode = 404;
+      error.status = "Fail";
+      throw error;
     }
     if (post.likes.includes(userId)) {
       post.likes.pull(userId);

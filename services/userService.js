@@ -9,7 +9,10 @@ const signup = async (name, email, password) => {
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    throw new Error("User already exists.");
+    const err = new Error("User already exists.");
+    err.statusCode = 400;
+    err.status = "Fail";
+    throw err;
   }
 
   const newUser = new User({ name, email, password });
@@ -19,18 +22,20 @@ const signup = async (name, email, password) => {
 };
 
 const login = async (email, password) => {
-  if (!email || !password) {
-    throw new Error("Email and password are required.");
-  }
-
   const user = await User.findOne({ email });
   if (!user) {
-    throw new Error("Email or password is incorrect.");
+    const err = new Error("Can't find the user specified.");
+    err.statusCode = 400;
+    err.status = "Fail";
+    throw err;
   }
 
   const validPassword = await bcrypt.compare(password, user.password);
   if (!validPassword) {
-    throw new Error("Email or password is incorrect.");
+    const err = new Error("Password is incorrect.");
+    err.statusCode = 400;
+    err.status = "Fail";
+    throw err;
   }
 
   const token = jwt.sign({ userId: user._id }, process.env.JWT_SEC_KEY, {
@@ -43,7 +48,9 @@ const login = async (email, password) => {
 const getUserDetails = async (userId) => {
   const user = await User.findById(userId).populate("posts");
   if (!user) {
-    throw new Error("User not found!");
+    const err = new Error("User not found!");
+    err.statusCode = 400;
+    err.status = "Fail";
   }
 
   const userName = user.name;
