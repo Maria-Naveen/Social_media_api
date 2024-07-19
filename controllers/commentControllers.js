@@ -1,7 +1,7 @@
 import commentService from "../services/commentService.js";
 import catchAsync from "../utils/catchAsync.js";
 
-const addComment = catchAsync(async (req, res, next) => {
+const addComment = catchAsync(async (req, res) => {
   const { id: postId } = req.params;
   const { text } = req.body;
   const userId = req.user.id;
