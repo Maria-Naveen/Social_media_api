@@ -1,5 +1,6 @@
 import Post from "../models/post.js";
 import Comment from "../models/comment.js";
+import { AppError, NotFoundError } from "../utils/customErrors.js";
 
 const createPost = async (postData, user) => {
   try {
@@ -10,10 +11,7 @@ const createPost = async (postData, user) => {
     await post.save();
     return post;
   } catch (error) {
-    const err = new Error("Error creating post");
-    err.statusCode = 400;
-    err.status = "Fail";
-    throw err;
+    throw new AppError("Error creating post");
   }
 };
 
@@ -28,17 +26,14 @@ const updatePost = async (params, updateData, user) => {
       { new: true, runValidators: true }
     );
     if (!post) {
-      const error = new Error("Post not found");
-      error.statusCode = 404;
-      error.status = "Fail";
-      throw error;
+      throw new NotFoundError("Post not found");
     }
     return post;
   } catch (error) {
-    if (error.message === "Post not found") {
+    if (error instanceof NotFoundError) {
       throw error;
     } else {
-      throw new Error("Error updating post");
+      throw new AppError("Error updating post");
     }
   }
 };
@@ -50,18 +45,15 @@ const deletePost = async (params, user) => {
       author: user.id,
     });
     if (!post) {
-      const error = new Error("Post not found");
-      error.statusCode = 404;
-      error.status = "Fail";
-      throw error;
+      throw new NotFoundError("Post not found");
     }
     await Comment.deleteMany({ postId: params.id });
     await Post.deleteOne({ _id: params.id });
   } catch (error) {
-    if (error.message === "Post not found") {
+    if (error instanceof NotFoundError) {
       throw error;
     } else {
-      throw new Error("Error deleting post");
+      throw new AppError("Error deleting post");
     }
   }
 };
@@ -70,17 +62,14 @@ const getPostDetails = async (postId) => {
   try {
     const post = await Post.findById(postId);
     if (!post) {
-      const error = new Error("Post not found");
-      error.statusCode = 404;
-      error.status = "Fail";
-      throw error;
+      throw new NotFoundError("Post not found");
     }
     return post;
   } catch (error) {
-    if (error.message === "Post not found") {
+    if (error instanceof NotFoundError) {
       throw error;
     } else {
-      throw new Error("Error displaying post details");
+      throw new AppError("Error displaying post details");
     }
   }
 };
@@ -89,10 +78,7 @@ const toggleLike = async (postId, userId) => {
   try {
     const post = await Post.findById(postId);
     if (!post) {
-      const error = new Error("Post not found");
-      error.statusCode = 404;
-      error.status = "Fail";
-      throw error;
+      throw new NotFoundError("Post not found");
     }
     if (post.likes.includes(userId)) {
       post.likes.pull(userId);
@@ -104,10 +90,10 @@ const toggleLike = async (postId, userId) => {
 
     return post;
   } catch (error) {
-    if (error.message === "Post not found") {
+    if (error instanceof NotFoundError) {
       throw error;
     } else {
-      throw new Error("Error toggling like");
+      throw new AppError("Error toggling like");
     }
   }
 };
