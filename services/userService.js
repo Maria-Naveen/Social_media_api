@@ -2,17 +2,20 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 
+import {
+  ValidationError,
+  UnauthorizedError,
+  NotFoundError,
+} from "../utils/customErrors.js";
+
 const signup = async (name, email, password) => {
   if (!name || !email || !password) {
-    throw new Error("All fields are required.");
+    throw new ValidationError("All fields are required.");
   }
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    const err = new Error("User already exists.");
-    err.statusCode = 400;
-    err.status = "Fail";
-    throw err;
+    throw new ValidationError("User already exists.");
   }
 
   const newUser = new User({ name, email, password });
@@ -24,18 +27,12 @@ const signup = async (name, email, password) => {
 const login = async (email, password) => {
   const user = await User.findOne({ email });
   if (!user) {
-    const err = new Error("Can't find the user specified.");
-    err.statusCode = 400;
-    err.status = "Fail";
-    throw err;
+    throw new NotFoundError("Can't find the user specified.");
   }
 
   const validPassword = await bcrypt.compare(password, user.password);
   if (!validPassword) {
-    const err = new Error("Password is incorrect.");
-    err.statusCode = 400;
-    err.status = "Fail";
-    throw err;
+    throw new UnauthorizedError("Password is incorrect.");
   }
 
   const token = jwt.sign({ userId: user._id }, process.env.JWT_SEC_KEY, {
@@ -48,9 +45,7 @@ const login = async (email, password) => {
 const getUserDetails = async (userId) => {
   const user = await User.findById(userId).populate("posts");
   if (!user) {
-    const err = new Error("User not found!");
-    err.statusCode = 400;
-    err.status = "Fail";
+    throw new NotFoundError("Can't find the user specified.");
   }
 
   const userName = user.name;
