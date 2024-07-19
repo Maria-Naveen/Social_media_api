@@ -1,96 +1,53 @@
 import commentService from "../services/commentService.js";
+import catchAsync from "../utils/catchAsync.js";
 
-const addComment = async (req, res) => {
-  try {
-    const { id: postId } = req.params;
-    const { text } = req.body;
-    const userId = req.user.id;
+const addComment = catchAsync(async (req, res, next) => {
+  const { id: postId } = req.params;
+  const { text } = req.body;
+  const userId = req.user.id;
 
-    const { post, comment } = await commentService.addComment(
-      postId,
-      userId,
-      text
-    );
+  const { post, comment } = await commentService.addComment(
+    postId,
+    userId,
+    text
+  );
 
-    res.status(200).json({ message: "Comment added", post, comment });
-  } catch (err) {
-    if (err.message === "Post not found") {
-      res.status(404).json({ message: err.message });
-    } else {
-      res.status(500).json({ message: err.message });
-    }
-  }
-};
+  res.status(200).json({ message: "Comment added", post, comment });
+});
 
-const deleteComment = async (req, res) => {
-  try {
-    const { postId, commentId } = req.params;
-    const userId = req.user.id;
+const deleteComment = catchAsync(async (req, res) => {
+  const { postId, commentId } = req.params;
+  const userId = req.user.id;
 
-    const result = await commentService.deleteComment(
-      postId,
-      commentId,
-      userId
-    );
+  const result = await commentService.deleteComment(postId, commentId, userId);
 
-    if (!result.success) {
-      return res.status(result.statusCode).json({ message: result.message });
-    }
+  res.status(200).json({ message: "Comment deleted", post: result.post });
+});
 
-    res.status(200).json({ message: "Comment deleted", post: result.post });
-  } catch (error) {
-    console.error("Error in deleteComment controller:", error);
-    res.status(500).json({ message: error.message });
-  }
-};
-const toggleCommentLike = async (req, res) => {
-  try {
-    const { postId, commentId } = req.params;
-    const userId = req.user.id; // Assuming you get userId from authentication middleware
+const toggleCommentLike = catchAsync(async (req, res) => {
+  const { postId, commentId } = req.params;
+  const userId = req.user.id; // Assuming you get userId from authentication middleware
 
-    const result = await commentService.toggleCommentLike(
-      postId,
-      commentId,
-      userId
-    );
+  const result = await commentService.toggleCommentLike(
+    postId,
+    commentId,
+    userId
+  );
+  res.status(200).json({ comment: result.comment, hasLiked: result.hasLiked });
+});
 
-    if (!result.success) {
-      return res.status(result.statusCode).json({ message: result.message });
-    }
+const updateComment = catchAsync(async (req, res) => {
+  const { postId, commentId } = req.params;
+  const { text } = req.body;
+  const userId = req.user.id;
 
-    res
-      .status(200)
-      .json({ comment: result.comment, hasLiked: result.hasLiked });
-  } catch (error) {
-    console.error("Error in toggleCommentLike controller:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-const updateComment = async (req, res) => {
-  try {
-    const { postId, commentId } = req.params;
-    const { text } = req.body;
-    const userId = req.user.id;
-
-    const result = await commentService.updateComment(
-      postId,
-      commentId,
-      userId,
-      text
-    );
-
-    if (!result.success) {
-      return res.status(result.statusCode).json({ message: result.message });
-    }
-
-    res
-      .status(200)
-      .json({ message: "Comment updated", comment: result.comment });
-  } catch (error) {
-    console.error("Error in updateComment controller:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
+  const result = await commentService.updateComment(
+    postId,
+    commentId,
+    userId,
+    text
+  );
+  res.status(200).json({ message: "Comment updated", comment: result.comment });
+});
 
 export { addComment, deleteComment, updateComment, toggleCommentLike };

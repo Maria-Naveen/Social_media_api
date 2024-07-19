@@ -1,5 +1,6 @@
 import Comment from "../models/comment.js";
 import Post from "../models/post.js";
+import { AppError, NotFoundError } from "../utils/customErrors.js";
 
 const addComment = async (postId, userId, text) => {
   const comment = new Comment({ text, author: userId, postId: postId });
@@ -12,7 +13,7 @@ const addComment = async (postId, userId, text) => {
   );
 
   if (!post) {
-    throw new Error("Post not found");
+    throw new NotFoundError("Post not found");
   }
 
   return { post, comment: savedComment };
@@ -27,11 +28,7 @@ const deleteComment = async (postId, commentId, userId) => {
     );
 
     if (!post) {
-      return {
-        success: false,
-        statusCode: 404,
-        message: "Post or comment not found or user not authorized",
-      };
+      throw new NotFoundError("Post not found");
     }
 
     const deletedComment = await Comment.findOneAndDelete({
@@ -40,18 +37,16 @@ const deleteComment = async (postId, commentId, userId) => {
     });
 
     if (!deletedComment) {
-      return {
-        success: false,
-        statusCode: 404,
-        message:
-          "Comment not found or user not authorized to delete the comment",
-      };
+      throw new NotFoundError("Comment not found");
     }
 
     return { success: true, post };
   } catch (error) {
-    console.error("Error in deleteComment service:", error);
-    return { success: false, statusCode: 500, message: error.message };
+    if (error instanceof NotFoundError) {
+      throw error;
+    } else {
+      throw new AppError("Error deleting comment", 500);
+    }
   }
 };
 
@@ -60,13 +55,13 @@ const toggleCommentLike = async (postId, commentId, userId) => {
     const post = await Post.findById(postId).populate("comments");
 
     if (!post) {
-      return { success: false, statusCode: 404, message: "Post not found" };
+      throw new NotFoundError("Post not found");
     }
 
     const comment = post.comments.find((c) => c._id.toString() === commentId);
 
     if (!comment) {
-      return { success: false, statusCode: 404, message: "Comment not found" };
+      throw new NotFoundError("Comment not found");
     }
 
     const hasLikedIndex = comment.likes.indexOf(userId);
@@ -81,8 +76,11 @@ const toggleCommentLike = async (postId, commentId, userId) => {
 
     return { success: true, comment, hasLiked: hasLikedIndex === -1 };
   } catch (error) {
-    console.error("Error in toggleCommentLike service:", error);
-    throw new Error("Toggle comment like failed");
+    if (error instanceof NotFoundError) {
+      throw error;
+    } else {
+      throw new AppError("Toggle comment like failed");
+    }
   }
 };
 
@@ -91,11 +89,7 @@ const updateComment = async (postId, commentId, userId, text) => {
     // Check if the post exists
     const post = await Post.findById(postId);
     if (!post) {
-      return {
-        success: false,
-        statusCode: 404,
-        message: "Post not found",
-      };
+      throw new NotFoundError("Post not found");
     }
 
     // Check if the comment exists and belongs to the user
@@ -106,21 +100,16 @@ const updateComment = async (postId, commentId, userId, text) => {
     );
 
     if (!comment) {
-      return {
-        success: false,
-        statusCode: 404,
-        message: "Comment not found or not authorized",
-      };
+      throw new NotFoundError("Comment not found");
     }
 
     return { success: true, comment };
   } catch (error) {
-    console.error("Error in updateComment service:", error);
-    return {
-      success: false,
-      statusCode: 500,
-      message: "Internal server error",
-    };
+    if (error instanceof NotFoundError) {
+      throw error;
+    } else {
+      throw new AppError("Error updating the comment", 500);
+    }
   }
 };
 
