@@ -1,204 +1,168 @@
-import postService from "../../services/postService";
+import postService from "../../services/postService.js";
 import Post from "../../models/post.js";
-import { AppError, NotFoundError } from "../../utils/customErrors.js";
 import Comment from "../../models/comment.js";
+import { AppError, NotFoundError } from "../../utils/customErrors.js";
 
-jest.mock("../../models/post.js");
-jest.mock("../../models/comment.js");
+jest.mock("../../models/post");
+jest.mock("../../models/comment");
 
-describe("Post Service", () => {
-  const mockUser = { id: "user123" };
+describe("Post Controller", () => {
+  const user = { id: "userId" };
+  const postData = { description: "Test post" };
+  const postId = "postId";
+  const params = { id: postId };
+  const updateData = { description: "Updated post" };
 
-  beforeEach(() => {
+  afterEach(() => {
     jest.clearAllMocks();
   });
 
-  describe("Create post", () => {
-    it("should create a post successfully", async () => {
-      const postData = { description: "New post", author: mockUser.id };
-
-      const mockPostInstance = {
+  describe("createPost", () => {
+    it("should create a new post", async () => {
+      const mockPost = {
+        description: postData.description,
+        author: user.id,
         save: jest.fn().mockResolvedValue({
           description: postData.description,
-          author: postData.author,
-        }), // Mock save to return post data
+          author: user.id,
+        }),
       };
-      Post.mockImplementation(() => mockPostInstance);
 
-      const result = await postService.createPost(postData, mockUser);
+      Post.mockImplementation(() => mockPost);
 
-      expect(Post).toHaveBeenCalledWith({
+      const result = await postService.createPost(postData, user);
+      expect(result).toMatchObject({
         description: postData.description,
-        author: mockUser.id,
-      }); // Ensure Post constructor is called with correct data
-      expect(mockPostInstance.save).toHaveBeenCalled(); // Ensure save method is called
-      expect(result).toEqual({
-        description: postData.description,
-        author: postData.author,
-      }); // Check if the result matches the expected data
+        author: user.id,
+      });
+      expect(mockPost.save).toHaveBeenCalled();
     });
 
-    it("should throw AppError when post creation fails", async () => {
-      const postData = { description: "New post" };
-
-      const mockPostInstance = {
-        save: jest.fn().mockRejectedValue(new Error("error")),
+    it("should throw an error if post creation fails", async () => {
+      const mockPost = {
+        description: postData.description,
+        author: user.id,
+        save: jest.fn().mockRejectedValue(new Error("Error")),
       };
-      Post.mockImplementation(() => mockPostInstance);
 
-      await expect(postService.createPost(postData, mockUser)).rejects.toThrow(
+      Post.mockImplementation(() => mockPost);
+
+      await expect(postService.createPost(postData, user)).rejects.toThrow(
         AppError
       );
+      expect(mockPost.save).toHaveBeenCalled();
     });
   });
 
-  describe("Update Post", () => {
-    it("should update a post successfully", async () => {
-      const params = { id: "post123" };
-      const updatedData = { description: "Updated post" };
-      const updatedPost = { ...updatedData, author: mockUser.id };
-
-      Post.findOneAndUpdate.mockResolvedValue(updatedPost);
-
-      const result = await postService.updatePost(
-        params,
-        updatedData,
-        mockUser
-      );
-
+  describe("updatePost", () => {
+    it("should update an existing post", async () => {
+      Post.findOneAndUpdate = jest.fn().mockResolvedValue(updateData);
+      const result = await postService.updatePost(params, updateData, user);
+      expect(result).toEqual(updateData);
       expect(Post.findOneAndUpdate).toHaveBeenCalledWith(
-        {
-          _id: params.id,
-          author: mockUser.id,
-        },
-        { description: "Updated post" },
+        { _id: postId, author: user.id },
+        { description: updateData.description },
         { new: true, runValidators: true }
       );
-      expect(result).toEqual(updatedPost);
     });
 
     it("should throw NotFoundError if post not found", async () => {
-      Post.findOneAndUpdate.mockResolvedValue(null);
-
+      Post.findOneAndUpdate = jest.fn().mockResolvedValue(null);
       await expect(
-        postService.updatePost(
-          { id: "post123" },
-          { description: "Updated post" },
-          mockUser
-        )
+        postService.updatePost(params, updateData, user)
       ).rejects.toThrow(NotFoundError);
     });
 
-    it("should throw AppError when post update fails", async () => {
-      Post.findOneAndUpdate.mockRejectedValue(new Error("Error"));
-
+    it("should throw AppError if update fails", async () => {
+      Post.findOneAndUpdate = jest.fn().mockRejectedValue(new Error("Error"));
       await expect(
-        postService.updatePost(
-          { id: "post123" },
-          { description: "Updated post" },
-          mockUser
-        )
+        postService.updatePost(params, updateData, user)
       ).rejects.toThrow(AppError);
     });
   });
 
-  describe("Delete post", () => {
-    it("should delete a post successfully", async () => {
-      const mockPost = { _id: "post123", author: mockUser.id };
-      Post.findOne.mockResolvedValue(mockPost);
-
-      Comment.deleteMany.mockResolvedValue({});
-      Post.deleteOne.mockResolvedValue({});
-
-      await postService.deletePost({ id: "post123" }, mockUser);
-
+  describe("deletePost", () => {
+    it("should delete an existing post", async () => {
+      Post.findOne = jest.fn().mockResolvedValue(postData);
+      Comment.deleteMany = jest.fn().mockResolvedValue({});
+      Post.deleteOne = jest.fn().mockResolvedValue({});
+      await postService.deletePost(params, user);
       expect(Post.findOne).toHaveBeenCalledWith({
-        _id: "post123",
-        author: mockUser.id,
+        _id: postId,
+        author: user.id,
       });
-      expect(Comment.deleteMany).toHaveBeenCalledWith({ postId: "post123" });
-      expect(Post.deleteOne).toHaveBeenCalledWith({ _id: "post123" });
+      expect(Comment.deleteMany).toHaveBeenCalledWith({ postId });
+      expect(Post.deleteOne).toHaveBeenCalledWith({ _id: postId });
     });
 
     it("should throw NotFoundError if post not found", async () => {
-      Post.findOne.mockResolvedValue(null);
-      await expect(
-        postService.deletePost({ id: "post123" }, mockUser)
-      ).rejects.toThrow(NotFoundError);
-    });
-
-    it("should throw AppError when post deletion fails", async () => {
-      Post.findOne.mockRejectedValue(new Error("Error"));
-      await expect(
-        postService.deletePost({ id: "post123" }, mockUser)
-      ).rejects.toThrow(AppError);
-    });
-  });
-
-  describe("Get Post Details", () => {
-    it("should return post details successfully", async () => {
-      const mockPost = { _id: "post123", description: "Post details" };
-      Post.findById.mockResolvedValue(mockPost);
-
-      const result = await postService.getPostDetails("post123");
-
-      expect(Post.findById).toHaveBeenCalledWith("post123");
-      expect(result).toEqual(mockPost);
-    });
-
-    it("should throw NotFoundError when post is not available", async () => {
-      Post.findById.mockResolvedValue(null);
-      await expect(postService.getPostDetails("post123")).rejects.toThrow(
+      Post.findOne = jest.fn().mockResolvedValue(null);
+      await expect(postService.deletePost(params, user)).rejects.toThrow(
         NotFoundError
       );
     });
 
-    it("should throw AppError when retrieving the post detail fails", async () => {
-      Post.findById.mockRejectedValue(new Error("Error"));
-      await expect(postService.getPostDetails("post123")).rejects.toThrow(
+    it("should throw AppError if deletion fails", async () => {
+      Post.findOne = jest.fn().mockRejectedValue(new Error("Error"));
+      await expect(postService.deletePost(params, user)).rejects.toThrow(
         AppError
       );
     });
   });
 
-  describe("Toggle Like", () => {
-    it("should unlike a post successfully", async () => {
-      const mockPost = {
-        _id: "post123",
-        likes: ["user123"],
-        save: jest.fn().mockResolvedValue({
-          _id: "post123",
-          likes: [],
-        }),
-      };
-      Post.findById.mockResolvedValue(mockPost);
-
-      const result = await postService.toggleLike("post123", "user123");
-
-      expect(Post.findById).toHaveBeenCalledWith("post123");
-      expect(mockPost.save).toHaveBeenCalled();
-      expect(result.likes).not.toContain("user123");
+  describe("getPostDetails", () => {
+    it("should return post details", async () => {
+      Post.findById = jest.fn().mockResolvedValue(postData);
+      const result = await postService.getPostDetails(postId);
+      expect(result).toEqual(postData);
+      expect(Post.findById).toHaveBeenCalledWith(postId);
     });
 
     it("should throw NotFoundError if post not found", async () => {
-      Post.findById.mockResolvedValue(null);
-
-      await expect(
-        postService.toggleLike("post123", "user123")
-      ).rejects.toThrow(NotFoundError);
+      Post.findById = jest.fn().mockResolvedValue(null);
+      await expect(postService.getPostDetails(postId)).rejects.toThrow(
+        NotFoundError
+      );
     });
 
-    it("should throw AppError when toggling like fails", async () => {
-      const mockPost = {
-        _id: "post123",
-        likes: [],
-        save: jest.fn().mockRejectedValue(new Error("Error toggling like")),
-      };
-      Post.findById.mockResolvedValue(mockPost);
+    it("should throw AppError if fetching details fails", async () => {
+      Post.findById = jest.fn().mockRejectedValue(new Error("Error"));
+      await expect(postService.getPostDetails(postId)).rejects.toThrow(
+        AppError
+      );
+    });
+  });
 
-      await expect(
-        postService.toggleLike("post123", "user123")
-      ).rejects.toThrow(AppError);
+  describe("toggleLike", () => {
+    it("should toggle like on a post", async () => {
+      const post = {
+        likes: {
+          includes: jest.fn().mockReturnValue(false),
+          push: jest.fn(),
+          pull: jest.fn(),
+        },
+        save: jest.fn().mockResolvedValue({}),
+      };
+      Post.findById = jest.fn().mockResolvedValue(post);
+      const result = await postService.toggleLike(postId, user.id);
+      expect(result).toEqual(post);
+      expect(Post.findById).toHaveBeenCalledWith(postId);
+      expect(post.likes.push).toHaveBeenCalledWith(user.id);
+      expect(post.save).toHaveBeenCalled();
+    });
+
+    it("should throw NotFoundError if post not found", async () => {
+      Post.findById = jest.fn().mockResolvedValue(null);
+      await expect(postService.toggleLike(postId, user.id)).rejects.toThrow(
+        NotFoundError
+      );
+    });
+
+    it("should throw AppError if toggling like fails", async () => {
+      Post.findById = jest.fn().mockRejectedValue(new Error("Error"));
+      await expect(postService.toggleLike(postId, user.id)).rejects.toThrow(
+        AppError
+      );
     });
   });
 });
