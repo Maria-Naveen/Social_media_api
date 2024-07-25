@@ -1,10 +1,10 @@
-import commentService from "../../services/commentService";
-import Comment from "../../models/comment";
-import Post from "../../models/post";
-import { AppError, NotFoundError } from "../../utils/customErrors";
+import commentService from "../../../services/commentService.js";
+import Comment from "../../../models/comment.js";
+import Post from "../../../models/post.js";
+import { NotFoundError } from "../../../utils/customErrors.js";
 
-jest.mock("../../models/comment");
-jest.mock("../../models/post");
+jest.mock("../../../models/comment");
+jest.mock("../../../models/post");
 
 describe("Comment Service", () => {
   const userId = "userId";

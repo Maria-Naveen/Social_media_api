@@ -1,10 +1,10 @@
-import postService from "../../services/postService.js";
-import Post from "../../models/post.js";
-import Comment from "../../models/comment.js";
-import { AppError, NotFoundError } from "../../utils/customErrors.js";
+import postService from "../../../services/postService.js";
+import Post from "../../../models/post.js";
+import Comment from "../../../models/comment.js";
+import { AppError, NotFoundError } from "../../../utils/customErrors.js";
 
-jest.mock("../../models/post");
-jest.mock("../../models/comment");
+jest.mock("../../../models/post");
+jest.mock("../../../models/comment");
 
 describe("Post Controller", () => {
   const user = { id: "userId" };

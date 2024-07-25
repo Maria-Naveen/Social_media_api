@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
-import User from "../../models/user.js";
-import verifyUser from "../../middleware/auth.js";
+import User from "../../../models/user.js";
+import verifyUser from "../../../middleware/auth.js";
 
 jest.mock("jsonwebtoken");
-jest.mock("../../models/user.js");
+jest.mock("../../../models/user.js");
 
 describe("verifyUser middleware", () => {
   let req, res, next;

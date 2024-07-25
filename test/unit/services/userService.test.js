@@ -1,14 +1,14 @@
-import userService from "../../services/userService.js";
-import User from "../../models/user.js";
+import userService from "../../../services/userService.js";
+import User from "../../../models/user.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import {
   ValidationError,
   UnauthorizedError,
   NotFoundError,
-} from "../../utils/customErrors.js";
+} from "../../../utils/customErrors.js";
 
-jest.mock("../../models/user.js");
+jest.mock("../../../models/user");
 jest.mock("bcrypt");
 jest.mock("jsonwebtoken");
 

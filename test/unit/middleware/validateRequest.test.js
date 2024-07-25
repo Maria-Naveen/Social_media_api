@@ -1,4 +1,4 @@
-import validateRequest from "../../middleware/validateRequest.js";
+import validateRequest from "../../../middleware/validateRequest.js";
 
 describe("validateRequest middleware", () => {
   let req, res, next, validationSchema;

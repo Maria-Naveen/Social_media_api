@@ -1,4 +1,4 @@
-import errorHandler from "../../middleware/errorHandler";
+import errorHandler from "../../../middleware/errorHandler";
 
 describe("ErrorHandler middleware", () => {
   it("should handle errors and send response", () => {
