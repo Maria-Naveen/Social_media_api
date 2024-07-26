@@ -3,6 +3,7 @@ import catchAsync from "../utils/catchAsync.js";
 import { ValidationError } from "../utils/customErrors.js";
 
 const signupController = catchAsync(async (req, res) => {
+  console.log("Sign up route hit!");
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
@@ -14,6 +15,7 @@ const signupController = catchAsync(async (req, res) => {
 });
 
 const loginController = catchAsync(async (req, res) => {
+  console.log("Sign in route hit");
   const { email, password } = req.body;
 
   if (!email || !password) {
