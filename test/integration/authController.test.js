@@ -1,9 +1,8 @@
 import request from "supertest";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import { app, server } from "../../server.js"; // Adjust the path to your Express app
-import User from "../../models/user.js"; // Adjust the path to your User model
-
+import { app, server } from "../../server.js";
+import User from "../../models/user.js";
 dotenv.config({ path: ".env.test" });
 
 beforeAll(async () => {
