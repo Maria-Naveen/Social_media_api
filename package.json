@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "nodemon server.js",
-    "test": "jest"
+    "test": "jest --config jest.config.cjs"
   },
   "author": "Naveen",
   "license": "ISC",
@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "@babel/preset-env": "^7.24.8",
+    "esm": "^3.2.25",
     "jest": "^29.7.0",
     "mongodb-memory-server": "^10.0.0",
     "supertest": "^7.0.0"
