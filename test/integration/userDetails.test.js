@@ -39,7 +39,7 @@ describe("User Details Integration tests", () => {
     const response = await request(app)
       .get("/api/user")
       .set("Authorization", `Bearer ${token}`);
-    console.log(response.body);
+    // console.log(response.body);
     expect(response.statusCode).toBe(200);
     expect(response.body).toHaveProperty("name", "user");
   });

@@ -67,6 +67,7 @@ describe("Comment Service", () => {
       const mockPost = { _id: postId, comments: [commentId], save: jest.fn() };
       const mockComment = { _id: commentId, author: userId };
 
+      Post.findOne = jest.fn().mockResolvedValue(mockPost);
       Post.findOneAndUpdate = jest.fn().mockResolvedValue(mockPost);
       Comment.findOneAndDelete = jest.fn().mockResolvedValue(mockComment);
 
@@ -77,8 +78,12 @@ describe("Comment Service", () => {
       );
 
       expect(result).toEqual({ success: true, post: mockPost });
+      expect(Post.findOne).toHaveBeenCalledWith({
+        _id: postId,
+        author: userId,
+      });
       expect(Post.findOneAndUpdate).toHaveBeenCalledWith(
-        { _id: postId, comments: commentId, author: userId },
+        { _id: postId, author: userId },
         { $pull: { comments: commentId } },
         { new: true }
       );
@@ -89,11 +94,11 @@ describe("Comment Service", () => {
     });
 
     it("should throw NotFoundError if post not found", async () => {
-      Post.findOneAndUpdate = jest.fn().mockResolvedValue(null);
+      Post.findOne = jest.fn().mockResolvedValue(null);
 
       await expect(
         commentService.deleteComment(postId, commentId, userId)
-      ).rejects.toThrow(NotFoundError);
+      ).rejects.toThrow(new NotFoundError("Post not found"));
     });
 
     it("should throw NotFoundError if comment not found", async () => {

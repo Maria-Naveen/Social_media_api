@@ -21,15 +21,24 @@ const addComment = async (postId, userId, text) => {
 
 const deleteComment = async (postId, commentId, userId) => {
   try {
-    const post = await Post.findOneAndUpdate(
-      { _id: postId, comments: commentId, author: userId },
-      { $pull: { comments: commentId } },
-      { new: true }
-    );
+    const post = await Post.findOne({ _id: postId, author: userId });
 
     if (!post) {
       throw new NotFoundError("Post not found");
     }
+
+    // Check if the comment exists in the post
+    const commentExists = post.comments.includes(commentId);
+    if (!commentExists) {
+      throw new NotFoundError("Comment not found");
+    }
+
+    // Remove the comment from the post
+    await Post.findOneAndUpdate(
+      { _id: postId, author: userId },
+      { $pull: { comments: commentId } },
+      { new: true }
+    );
 
     const deletedComment = await Comment.findOneAndDelete({
       _id: commentId,
